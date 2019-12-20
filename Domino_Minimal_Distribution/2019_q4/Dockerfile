@@ -53,6 +53,7 @@ RUN \
 		r-base-dev=${R_BASE_VERSION}-* -y && \
 # INSTALL R packages required by Domino
     R -e 'options(repos=structure(c(CRAN="http://cran.us.r-project.org"))); install.packages(c( "plumber","yaml", "shiny"))' && \
+    chown -R ubuntu:ubuntu /usr/local/lib/R/site-library && \
 #Cleanup
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
