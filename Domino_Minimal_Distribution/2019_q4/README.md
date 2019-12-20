@@ -1,15 +1,16 @@
 # Domino Minimal Distribution 2019 Q4
 
 ## Repo
+
 <docker repo uri>
 
 
 ## Description
-Ubuntu 18.04
-Mini-conda 4.7.12.1 
-Python 3.7.4
-R 3.6.2
-Jupyter, Jupyterlab, VSCode, Rstudio
+* Ubuntu 18.04
+* Mini-conda 4.7.12.1 
+* Python 3.7.4
+* R 3.6.2
+* Jupyter, Jupyterlab, VSCode, Rstudio
 
 ## Notebook Properities
 
