@@ -2,8 +2,7 @@
 
 ## Repo
 
-<docker repo uri>
-
+dominodatalab/base:DMD_py3.7_r3.6_2019q4
 
 ## Description
 * Ubuntu 18.04
