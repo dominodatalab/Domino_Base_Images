@@ -49,11 +49,3 @@ rstudio:
     port: 8888
     requireSubdomain: false
 ```
-
-## Addition Dockerfile instructions
-
-Any addition docker file instructions that should be set in the compute environment instead of in the image itself. 
-```
-<docker instructions>
-
-```
