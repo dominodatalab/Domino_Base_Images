@@ -50,7 +50,7 @@ RUN \
     apt-get update -y && \
     apt-get install \ 
         r-base=${R_BASE_VERSION}-* \
-		r-base-dev=${R_BASE_VERSION}-* -y && \
+    r-base-dev=${R_BASE_VERSION}-* -y && \
 # INSTALL R packages required by Domino
     R -e 'options(repos=structure(c(CRAN="http://cran.us.r-project.org"))); install.packages(c( "plumber","yaml", "shiny"))' && \
     chown -R ubuntu:ubuntu /usr/local/lib/R/site-library && \
@@ -72,6 +72,7 @@ ENV MINICONDA_MD5 81c773ff87af5cfac79ab862942ab6b3
 RUN \
     echo 'export CONDA_DIR=/opt/conda' >> /home/ubuntu/.domino-defaults && \
     echo 'export PATH=$CONDA_DIR/bin:$PATH' >> /home/ubuntu/.domino-defaults  && \
+    echo 'export PATH=/home/ubuntu/.local/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
     cd /tmp && \
     wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
     echo "${MINICONDA_MD5} *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
@@ -139,8 +140,7 @@ RUN \
     /var/opt/workspaces/vscode/install && \
 
 #Fix permissions so notebooks start
-    chown -R ubuntu:ubuntu /home/ubuntu/.local/share
-
+    chown -R ubuntu:ubuntu /home/ubuntu/.local/
 
 #Provide Sudo in container
 RUN echo "ubuntu    ALL=NOPASSWD: ALL" >> /etc/sudoers
