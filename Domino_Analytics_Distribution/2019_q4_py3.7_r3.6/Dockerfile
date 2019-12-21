@@ -82,6 +82,7 @@ ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH 
 ENV MINICONDA_VERSION 4.7.12.1     
 ENV MINICONDA_MD5 81c773ff87af5cfac79ab862942ab6b3
+ENV PYTHON_VER 3.7
 
 #set env variables so they are available in Domino runs/workspaces
 RUN \
@@ -281,8 +282,9 @@ RUN \
     apt-get install -y pandoc && \
 #configure matplotlib
     mkdir -p /home/ubuntu/.config/matplotlib && \
-    echo "backend: Agg" > ~/.config/matplotlib/matplotlibrc && \
-    
+    echo "backend : Cairo" > /home/ubuntu/.config/matplotlib/matplotlibrc  && \
+    sed -i -e 's/backend      : qt5agg/backend      : Cairo/g' $CONDA_DIR/lib/python$PYTHON_VER/site-packages/matplotlib/mpl-data/matplotlibrc && \
+
 #Kerberos
     apt-get install krb5-kdc krb5-admin-server -y && \
 #clean up
