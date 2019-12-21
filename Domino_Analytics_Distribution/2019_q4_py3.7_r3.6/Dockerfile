@@ -279,6 +279,8 @@ RUN \
     pip install pyodbc==4.0.27 && \
     
     apt-get install -y pandoc && \
+#configure matplotlib
+    echo "backend: Agg" > ~/.config/matplotlib/matplotlibrc && \
 
 #Kerberos
     apt-get install krb5-kdc krb5-admin-server -y && \
