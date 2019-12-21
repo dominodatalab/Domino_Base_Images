@@ -280,8 +280,9 @@ RUN \
     
     apt-get install -y pandoc && \
 #configure matplotlib
+    mkdir -p /home/ubuntu/.config/matplotlib && \
     echo "backend: Agg" > ~/.config/matplotlib/matplotlibrc && \
-
+    
 #Kerberos
     apt-get install krb5-kdc krb5-admin-server -y && \
 #clean up
