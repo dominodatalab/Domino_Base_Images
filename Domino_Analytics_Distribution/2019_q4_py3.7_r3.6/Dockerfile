@@ -190,7 +190,7 @@ RUN \
     nose==1.3.7 \
     numba==0.39.0 \
     numexpr==2.6.8 \
-    numpy==1.15.1 \
+    numpy==1.18.0 \
     numpydoc==0.8.0 \
     # # 0.5.1 not on pypi so reverting to 0.5.0
     odo==0.5.0 \
@@ -254,7 +254,7 @@ RUN \
     Twisted==18.7.0 \
     unicodecsv==0.14.1 \
     Werkzeug==0.14.1 \
-    wrapt==1.10.11 \
+    wrapt==1.11.2 \
     xlrd==1.1.0 \
     XlsxWriter==1.1.0 \
     xlwt==1.3.0 \
@@ -433,6 +433,8 @@ RUN \
 #### Install CUDA and GPU dependencies #####
 
 ENV CUDNN_VERSION 7.4.2.24
+#For 
+
 
 RUN echo 'DPkg::options { "--force-confdef"; "--force-confnew"; }' >> /etc/apt/apt.conf.d/local
   
@@ -461,6 +463,7 @@ RUN \
     ln -s /usr/local/cuda-10.0 /usr/local/cuda && \
     echo 'export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
     echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH' >> /home/ubuntu/.domino-defaults && \
+
 
 #Clean up
     apt-get clean && \
