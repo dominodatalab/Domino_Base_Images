@@ -1,5 +1,4 @@
 FROM ubuntu:18.04
-
 LABEL maintainer="Domino Data Lab <support@dominodatalab.com>"
 
 #### Utilities required by Domino ####
@@ -409,8 +408,9 @@ RUN \
 
 # # # # #Install vscode from workspaces
 #Required for VSCode
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
     apt-get update && \
-    apt-get install libssl1.0-dev node-gyp nodejs-dev nodejs=8.10* npm -y && \
+    apt-get install libssl1.0-dev node-gyp nodejs -y && \
     pip install python-language-server autopep8 flake8 pylint && \
     pip install git+git://github.com/dominodatalab/jupyter_codeserver_proxy-.git && \
 #Install VScode
