@@ -57,6 +57,7 @@ RUN \
     apt-get install -y libcairo2-dev  libxt-dev libgmp3-dev jags libgsl0-dev libx11-dev mesa-common-dev libglu1-mesa-dev libmpfr-dev libfftw3-dev libtiff5-dev libiodbc2-dev libudunits2-dev libopenmpi-dev libmysqlclient-dev -y && \
 #required for rJava
     export LD_LIBRARY_PATH=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server && \
+    echo "export LD_LIBRARY_PATH=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server:\${LD_LIBRARY_PATH:-}" >> /home/ubuntu/.domino-defaults && \
     R CMD javareconf && \
 # INSTALL R packages required by Domino
     R -e 'options(repos=structure(c(CRAN="http://cran.us.r-project.org"))); install.packages(c( "plumber","yaml", "shiny"))' && \
@@ -432,43 +433,52 @@ RUN \
 
 #### Install CUDA and GPU dependencies #####
 
-ENV CUDNN_VERSION 7.4.2.24
-#For 
+#NVIDIA
+ENV CUDA_VERSION 10.0.130
+ENV CUDA_PKG_VERSION 10-0=$CUDA_VERSION-1
 
 
-RUN echo 'DPkg::options { "--force-confdef"; "--force-confnew"; }' >> /etc/apt/apt.conf.d/local
-  
-# Remove CUDA and Nvidia drivers
+RUN \
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH:-} && \
+    echo "export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH:-}" >> /home/ubuntu/.domino-defaults && \
+    
+    export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:\${PATH:-} && \
+    echo "export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:\${PATH:-}" >> /home/ubuntu/.domino-defaults && \
+    
+    apt-get update && apt-get install -y --no-install-recommends \
+    gnupg2 curl ca-certificates && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
+    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-get purge --autoremove -y curl && \
+
+# For libraries in the cuda-compat-* package: https://docs.nvidia.com/cuda/eula/index.html#attachment-a
+    apt-get install -y --no-install-recommends cuda-cudart-$CUDA_PKG_VERSION cuda-compat-10-0 && \
+    ln -s cuda-10.0 /usr/local/cuda && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+ENV NVIDIA_REQUIRE_CUDA "cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=410,driver<411"
+
+#RUNTIME
+ENV NCCL_VERSION 2.4.8
+
 RUN \
     apt-get update && \
-    apt-get install -y update-manager-core && \
-    apt-mark unhold nvidia* cuda* && \
-    apt-get purge -y --force-yes nvidia-* cuda* && \
+    apt-get install -y --no-install-recommends cuda-libraries-$CUDA_PKG_VERSION cuda-nvtx-$CUDA_PKG_VERSION libnccl2=$NCCL_VERSION-1+cuda10.0 apt-mark hold libnccl2 && \
+    rm -rf /var/lib/apt/lists/*
     
-    curl -s http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
-    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
-    echo "deb http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
-    apt-get update -y && \
+    
+ENV CUDNN_VERSION 7.6.3.30
 
-#Install CUDNN
-    apt-get install -y --no-install-recommends libcudnn7=$CUDNN_VERSION-1+cuda10.0 && \
-
-#Install CUDA            
-    cd /tmp && wget -q https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux && \
-    cd /tmp && chmod +x cuda_10.0.130_410.48_linux && \
-    cd /tmp && sh cuda_10.0.130_410.48_linux --silent --toolkit && \
-
-    apt-get install --no-install-recommends -y nvidia-driver-410 && cd /tmp && rm -rf cuda_10.0.130_410.48_linux && \
-
-    ln -s /usr/local/cuda-10.0 /usr/local/cuda && \
-    echo 'export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
-    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH' >> /home/ubuntu/.domino-defaults && \
-
-
-#Clean up
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/*
+RUN \
+    apt-get update && \
+    apt-get install -y --no-install-recommendslibcudnn7=$CUDNN_VERSION-1+cuda10.0 && \
+    apt-mark hold libcudnn7 && \
+    rm -rf /var/lib/apt/lists/*
     
 #Provide Sudo in container
 RUN echo "ubuntu    ALL=NOPASSWD: ALL" >> /etc/sudoers
