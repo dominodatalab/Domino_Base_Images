@@ -1,4 +1,5 @@
 FROM ubuntu:18.04
+
 LABEL maintainer="Domino Data Lab <support@dominodatalab.com>"
 
 #### Utilities required by Domino ####
