@@ -5,7 +5,7 @@ This is intended to be used only with Domino < v4.
 
 ## Repo
 
-TBD
+dominodatalab/base:DAD_py3.6_r3.6_2019q4_legacy
 
 ## Description
 * Ubuntu 18.04
