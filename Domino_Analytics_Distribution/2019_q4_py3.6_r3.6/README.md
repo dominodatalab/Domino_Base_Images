@@ -2,7 +2,7 @@
 
 ## Repo
 
-TBD
+dominodatalab/base:DAD_py3.6_r3.6_2019q4
 
 ## Description
 * Ubuntu 18.04
