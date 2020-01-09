@@ -435,34 +435,42 @@ RUN \
     chown -R ubuntu:ubuntu /home/ubuntu/.local/
 
 #### Install CUDA and GPU dependencies #####
+ENV CUDNN_VERSION 7.4.2.24
+ENV NVIDIA_VER 410.104-0ubuntu1
 
 RUN echo 'DPkg::options { "--force-confdef"; "--force-confnew"; }' >> /etc/apt/apt.conf.d/local
-  
-# Remove CUDA and Nvidia drivers
-ENV CUDNN_VERSION 7.4.2.24
+ 
+ 
 
-  
-RUN \
-    apt-get update && \
+# Remove CUDA and Nvidia drivers
+RUN apt-get update && \
     apt-get install -y update-manager-core && \
-    curl -s http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
+    apt-get install -y apt dpkg && \
+    apt-mark unhold nvidia* cuda* && \
+    apt-get purge -y --force-yes nvidia-* cuda*
+  
+RUN curl -s http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
     echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
     echo "deb http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
-   
+    apt-get update -y && \
  
-# Include the following if they need cuDNN 7 and the latest Tensorflow
-    apt-get update && apt-get install -y --no-install-recommends libcudnn7=$CUDNN_VERSION-1+cuda10.0 && \
+# Include the following if they need cuDNN 7 
+    apt-get install -y --no-install-recommends libcudnn7=$CUDNN_VERSION-1+cuda10.0 && \
     cd /tmp && wget -q https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux && \
     cd /tmp && chmod +x cuda_10.0.130_410.48_linux && \
     cd /tmp && sh cuda_10.0.130_410.48_linux --silent --toolkit && \
 
-    apt-get install --no-install-recommends -y nvidia-driver-410 && cd /tmp && rm -rf cuda_10.0.130_410.48_linux && \
+    apt-get install -y --allow-downgrades libnvidia-gl-410=$NVIDIA_VER nvidia-dkms-410=$NVIDIA_VER libnvidia-compute-410=$NVIDIA_VER nvidia-compute-utils-410=$NVIDIA_VER libnvidia-decode-410=$NVIDIA_VER libnvidia-encode-410=$NVIDIA_VER nvidia-utils-410=$NVIDIA_VER libnvidia-cfg1-410=$NVIDIA_VER nvidia-kernel-source-410=$NVIDIA_VER xserver-xorg-video-nvidia-410=$NVIDIA_VER libnvidia-ifr1-410=$NVIDIA_VER  libnvidia-fbc1-410=$NVIDIA_VER && \
+    apt-get install --no-install-recommends --no-install-suggests --allow-downgrades nvidia-driver-410=$NVIDIA_VER && \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
+    
 
-RUN ln -s /usr/local/cuda-10.0 /usr/local/cuda && \
-echo 'export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
-echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH' >> /home/ubuntu/.domino-defaults
+
+RUN \
+    ln -s /usr/local/cuda-10.0 /usr/local/cuda && \
+    echo 'export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
+    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH' >> /home/ubuntu/.domino-defaults
   
 
 #Provide Sudo in container
