@@ -1,8 +1,7 @@
 # Domino Analytics Distribution 2019 Q4
 
 ## Repo
-
-TBD
+dominodatalab/base:DAD_py3.7_r3.6_2019q4
 
 ## Description
 * Ubuntu 18.04
