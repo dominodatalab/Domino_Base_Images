@@ -1,15 +1,20 @@
-# Domino Analytics Distribution 2019 Q4
+# Domino Analytics Distribution 2019 Q3 Py 3.7 R 3.6
+
 
 ## Repo
-dominodatalab/base:DAD_py3.7_r3.6_2019q4
+
+dominodatalab/base:DAD_py3.7_r3.6_2019q3
+
+Also available under the tags: 
+dominodatalab/base:Ubuntu18_DAD_Py3.7_R3.6_20190918
+quay.io/domino/base:Ubuntu18_DAD_Py3.7_R3.6_20190918
+
 
 ## Description
-* Ubuntu 18.04
-* Mini-conda 4.7.12.1 
-* Python 3.7.4
-* R 3.6.2
-* Jupyter, Jupyterlab, VSCode, Rstudio
-* Cuda 10.0
+Ubuntu 18.04
+Anaconda Python 3.7
+R 3.6
+Jupyter Lab 0.35.4 ,Jupyter 1.0 ,Rstudio 1.2, VSCode
 
 ## Notebook Properities
 
