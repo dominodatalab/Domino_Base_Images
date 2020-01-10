@@ -3,6 +3,8 @@
 ## Repo
 dominodatalab/base:DAD_py3.7_r3.6_2019q4
 
+Also at: mirrors.domino.tech/domino/base:DAD_py3.7_r3.6_2019q4
+
 ## Description
 * Ubuntu 18.04
 * Mini-conda 4.7.12.1 
