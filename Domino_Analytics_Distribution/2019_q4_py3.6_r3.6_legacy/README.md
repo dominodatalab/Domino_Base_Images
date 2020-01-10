@@ -7,6 +7,8 @@ This is intended to be used only with Domino < v4.
 
 dominodatalab/base:DAD_py3.6_r3.6_2019q4_legacy
 
+also at: mirrors.domino.tech/domino/base:DAD_py3.6_r3.6_2019q4_legacy
+
 ## Description
 * Ubuntu 18.04
 * Mini-conda 4.7.12.1 
