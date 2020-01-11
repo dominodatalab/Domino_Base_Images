@@ -1,6 +1,7 @@
 # Domino Analytics Distribution 2019 Q4 Legacy
 
-This is the same as the 2019_q4_py3.6_r3.6 with the exception of the CUDA configuration. 
+This is the same as the 2019_q4_py3.6_r3.6 with the exception of the CUDA configuration. It includes the nvidia drivers in the docker image as is required for Domino version 3.x. 
+
 This is intended to be used only with Domino < v4. 
 
 ## Repo
