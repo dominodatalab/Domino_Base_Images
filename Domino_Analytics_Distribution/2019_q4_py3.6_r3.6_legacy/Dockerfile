@@ -187,7 +187,6 @@ RUN \
     mpmath==1.0.0 \
     msgpack==0.5.6 \
     multipledispatch==0.6.0 \
-    #not required. Only used with anaconda
     networkx==2.1 \
     nltk==3.3 \
     nose==1.3.7 \
