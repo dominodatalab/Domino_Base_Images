@@ -364,7 +364,7 @@ RUN cd /tmp && wget -q https://downloads.lightbend.com/scala/2.12.6/scala-2.12.6
  echo 'export SCALA_HOME=/usr/share/scala' >> /home/ubuntu/.domino-defaults && \
  echo 'export PATH=$PATH:$SCALA_HOME/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
  echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults && \
- cd /tmp && curl -L -o coursier https://git.io/coursier && chmod +x coursier && \
+ cd /tmp && curl -L -o coursier https://git.io/coursier-cli && chmod +x coursier && \
  cd /tmp && wget -q https://github.com/almond-sh/almond/archive/v0.1.8.tar.gz && tar -zxvf v0.1.8.tar.gz && mv almond-0.1.8 almond && export SCALA_VERSION=2.12.6 && export ALMOND_VERSION=0.1.8 && ./coursier bootstrap -r jitpack -i user -I user:sh.almond:scala-kernel-api_$SCALA_VERSION:$ALMOND_VERSION sh.almond:scala-kernel_$SCALA_VERSION:$ALMOND_VERSION --sources --default=true -o almond-out && ./almond-out --install --global --id scala212 --display-name "Scala (2.12)" && \
 # ## SBT
  echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list && \
