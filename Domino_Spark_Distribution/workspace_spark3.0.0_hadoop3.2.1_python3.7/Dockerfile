@@ -1,4 +1,4 @@
-FROM dominodatalab/base:Ubuntu18_DAD_Py3.6_R3.6_20200508
+FROM dominodatalab/base:Ubuntu18_DAD_Py3.7_R3.6_20200508
 
 ENV HADOOP_VERSION=3.2.1
 ENV HADOOP_HOME=/opt/hadoop
