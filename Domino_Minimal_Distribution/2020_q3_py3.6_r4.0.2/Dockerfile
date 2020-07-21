@@ -134,7 +134,7 @@ RUN \
     
 #Required for VSCode
     apt-get update && \
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install libssl1.0-dev node-gyp nodejs -y && \
     pip install python-language-server autopep8 flake8 && \
     rm -rf /var/lib/apt/lists/* && \
