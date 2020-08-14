@@ -1,4 +1,4 @@
-# MATLAB Domino Base Image 2020 05/21
+# MATLAB R2019b Domino Base Image 2020 05/21
 
 ## Image tag
 
@@ -30,3 +30,28 @@ matlab:
 ```
 
 Optionally, any pluggable properties available to the parent image (the Domino Analytics Distribution above) can also be used.
+
+## MATLAB Toolboxes
+
+The following Toolboxes have been installed in this image, and can be used in a Domino session if you have the proper licenses for them.
+
+```
+MATLAB                                                Version 9.7         (R2019b)
+Simulink                                              Version 10.0        (R2019b)
+Computer Vision Toolbox                               Version 9.1         (R2019b)
+Curve Fitting Toolbox                                 Version 3.5.10      (R2019b)
+Deep Learning Toolbox                                 Version 13.0        (R2019b)
+Global Optimization Toolbox                           Version 4.2         (R2019b)
+Image Processing Toolbox                              Version 11.0        (R2019b)
+MATLAB Compiler                                       Version 7.1         (R2019b)
+MATLAB Compiler SDK                                   Version 6.7         (R2019b)
+Optimization Toolbox                                  Version 8.4         (R2019b)
+Parallel Computing Toolbox                            Version 7.1         (R2019b)
+Predictive Maintenance Toolbox                        Version 2.1         (R2019b)
+Signal Processing Toolbox                             Version 8.3         (R2019b)
+Statistics and Machine Learning Toolbox               Version 11.6        (R2019b)
+Symbolic Math Toolbox                                 Version 8.4         (R2019b)
+System Identification Toolbox                         Version 9.11        (R2019b)
+Text Analytics Toolbox                                Version 1.4         (R2019b)
+```
+
