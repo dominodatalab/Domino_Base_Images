@@ -217,12 +217,6 @@ RUN \
     pyflakes==2.1.1 \
     pylint==2.4.4 \
     pyparsing==2.4.6 \
-    pytest==3.10.0 \
-    pytest-arraydiff==0.3 \
-    pytest-astropy==0.8.0 \
-    pytest-doctestplus==0.5.0 \
-    pytest-openfiles==0.3.0 \
-    pytest-remotedata==0.3.2 \
     pytz==2018.9 \
     PyWavelets==1.1.1 \
     PyYAML==3.13 \
@@ -254,7 +248,7 @@ RUN \
     Twisted==18.9.0 \
     unicodecsv==0.14.1 \
     Werkzeug==0.16.1 \
-    wrapt==1.12.1 \
+    wrapt==1.11.1 \
     xlrd==1.2.0 \
     XlsxWriter==1.2.8 \
     xlwt==1.3.0 \
