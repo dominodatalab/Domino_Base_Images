@@ -1,5 +1,3 @@
-
-
 FROM ubuntu:18.04
 LABEL maintainer="Domino Data Lab <support@dominodatalab.com>"
 LABEL "com.dominodatalab.www"="Domino Data Lab"
@@ -32,11 +30,12 @@ RUN \
   curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" &&   unzip awscliv2.zip && \
   aws/install  && \
   rm -rf awscliv2.zip aws && \
-# ADD SSH start script for Domino <4.x
-  apt-get install openssh-server -y && \
-  mkdir -p /scripts && \
-  printf "#!/bin/bash\\nservice ssh start\\n" > /scripts/start-ssh && \
-  chmod +x /scripts/start-ssh && \
+
+# ADD SSH start script for Domino <4.x - COMMENTING OUT FOE SECURITY REASONS DOM-27573
+#  apt-get install openssh-server -y && \
+#  mkdir -p /scripts && \
+#  printf "#!/bin/bash\\nservice ssh start\\n" > /scripts/start-ssh && \
+#  chmod +x /scripts/start-ssh && \
   echo 'export PYTHONIOENCODING=utf-8' >> /home/ubuntu/.domino-defaults && \
   echo 'export LANG=en_US.UTF-8' >> /home/ubuntu/.domino-defaults && \
   echo 'export JOBLIB_TEMP_FOLDER=/tmp' >> /home/ubuntu/.domino-defaults && \
@@ -53,14 +52,14 @@ RUN echo "Set disable_coredump false" >> /etc/sudo.conf
 #######################################################
 #                   Install R Base                    #
 #######################################################
-ENV R_BASE_VERSION 4.0.3
+ENV R_BASE_VERSION 4.0.5
 RUN \
+    apt remove r-base* --purge && \
+    apt-get install dirmngr && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \
     add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/' && \
     apt-get update -y && \
-    apt-get install \
-        r-base=${R_BASE_VERSION}-* \
-        r-base-dev=${R_BASE_VERSION}-* -y && \
+    apt-get install -y r-base=${R_BASE_VERSION}-* r-base-dev=${R_BASE_VERSION}-*  && \
 # Dependencies of various R packages
     apt-get install -y unixodbc-dev libgdal-dev libcairo2-dev  libxt-dev libgmp3-dev jags libgsl0-dev libx11-dev mesa-common-dev libglu1-mesa-dev libmpfr-dev libfftw3-dev libtiff5-dev libudunits2-dev libopenmpi-dev libmysqlclient-dev libgit2-dev -y && \
 # Required for rJava
@@ -236,81 +235,87 @@ USER root
 #######################################################
 # https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/10.1/ubuntu18.04-x86_64/base/Dockerfile
 # Install CUDA Base
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gnupg2 curl ca-certificates && \
-    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
-    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
-    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
-    apt-get purge --autoremove -y curl && \
-    rm -rf /var/lib/apt/lists/*
-ENV CUDA_VERSION 10.1.243
-ENV CUDA_PKG_VERSION 10-1=$CUDA_VERSION-1
-# For libraries in the cuda-compat-* package: https://docs.nvidia.com/cuda/eula/index.html#attachment-a
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    cuda-cudart-$CUDA_PKG_VERSION \
-    cuda-compat-10-1 \
-    && ln -s cuda-10.1 /usr/local/cuda && \
-    rm -rf /var/lib/apt/lists/*
-# Required for nvidia-docker v1
-RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
-    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
-ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
-# nvidia-container-runtime
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
-
-# See version of CUDA for version of Tensorflow: https://www.tensorflow.org/install/source#gpu
-# https://github.com/tensorflow/tensorflow/blob/v2.3.2/tensorflow/tools/dockerfiles/dockerfiles/gpu.Dockerfile
-ENV UBUNTU_VERSION=18.04
-ENV CUDA=10.1
-ENV CUDNN=7.6.4.38-1
-ENV CUDNN_MAJOR_VERSION=7
-ENV LIB_DIR_PREFIX=x86_64
-ENV LIBNVINFER=6.0.1-1
-ENV LIBNVINFER_MAJOR_VERSION=6
-SHELL ["/bin/bash", "-c"]
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        cuda-command-line-tools-${CUDA/./-} \
-        # There appears to be a regression in libcublas10=10.2.2.89-1 which
-        # prevents cublas from initializing in TF. See
-        # https://github.com/tensorflow/tensorflow/issues/9489#issuecomment-562394257
-        libcublas10=10.2.1.243-1 \ 
-        cuda-nvrtc-${CUDA/./-} \
-        cuda-cufft-${CUDA/./-} \
-        cuda-curand-${CUDA/./-} \
-        cuda-cusolver-${CUDA/./-} \
-        cuda-cusparse-${CUDA/./-} \
-        libcudnn7=${CUDNN}+cuda${CUDA} \
-        libfreetype6-dev \
-        libhdf5-serial-dev
-# Install TensorRT if not building for PowerPC
-RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda${CUDA} \
-        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda${CUDA} \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*; }
-# For CUDA profiling, TensorFlow requires CUPTI.
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-# Link the libcuda stub to the location where tensorflow is searching for it and reconfigure
-# dynamic linker run-time bindings
-RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-    && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-    && ldconfig
-ENV TF_PACKAGE=tensorflow-gpu
-ENV TF_PACKAGE_VERSION=2.3.0
-RUN pip install --no-cache-dir ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    gnupg2 curl ca-certificates && \
+#    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
+#    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+#    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+#    apt-get purge --autoremove -y curl && \
+#    rm -rf /var/lib/apt/lists/*
+#ENV CUDA_VERSION 10.1.243
+#ENV CUDA_PKG_VERSION 10-1=$CUDA_VERSION-1
+## For libraries in the cuda-compat-* package: https://docs.nvidia.com/cuda/eula/index.html#attachment-a
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    cuda-cudart-$CUDA_PKG_VERSION \
+#    cuda-compat-10-1 \
+#    && ln -s cuda-10.1 /usr/local/cuda && \
+#    rm -rf /var/lib/apt/lists/*
+## Required for nvidia-docker v1
+#RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+#    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+#ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+#ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+## nvidia-container-runtime
+#ENV NVIDIA_VISIBLE_DEVICES all
+#ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+#ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
+#
+## See version of CUDA for version of Tensorflow: https://www.tensorflow.org/install/source#gpu
+## https://github.com/tensorflow/tensorflow/blob/v2.3.2/tensorflow/tools/dockerfiles/dockerfiles/gpu.Dockerfile
+#ENV UBUNTU_VERSION=18.04
+#ENV CUDA=10.1
+#ENV CUDNN=7.6.4.38-1
+#ENV CUDNN_MAJOR_VERSION=7
+#ENV LIB_DIR_PREFIX=x86_64
+#ENV LIBNVINFER=6.0.1-1
+#ENV LIBNVINFER_MAJOR_VERSION=6
+#SHELL ["/bin/bash", "-c"]
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#        cuda-command-line-tools-${CUDA/./-} \
+#        # There appears to be a regression in libcublas10=10.2.2.89-1 which
+#        # prevents cublas from initializing in TF. See
+#        # https://github.com/tensorflow/tensorflow/issues/9489#issuecomment-562394257
+#        libcublas10=10.2.1.243-1 \ 
+#        cuda-nvrtc-${CUDA/./-} \
+#        cuda-cufft-${CUDA/./-} \
+#        cuda-curand-${CUDA/./-} \
+#        cuda-cusolver-${CUDA/./-} \
+#        cuda-cusparse-${CUDA/./-} \
+#        libcudnn7=${CUDNN}+cuda${CUDA} \
+#        libfreetype6-dev \
+#        libhdf5-serial-dev
+## Install TensorRT if not building for PowerPC
+#RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
+#        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda${CUDA} \
+#        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda${CUDA} \
+#        && apt-get clean \
+#        && rm -rf /var/lib/apt/lists/*; }
+## For CUDA profiling, TensorFlow requires CUPTI.
+#ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+## Link the libcuda stub to the location where tensorflow is searching for it and reconfigure
+## dynamic linker run-time bindings
+#RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
+#    && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
+#    && ldconfig
+#ENV TF_PACKAGE=tensorflow-gpu
+#ENV TF_PACKAGE_VERSION=2.3.0
+#RUN pip install --no-cache-dir ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
 #######################################################
 #      Installing Notebooks,Workspaces,IDEs,etc       #
 #######################################################
 # Add workspace install and configuration scripts
 RUN \
+    echo hello7 && \
     cd /tmp && \
-    wget -q https://github.com/dominodatalab/workspace-configs/archive/2021q1-v1.zip && \
-    unzip 2021q1-v1.zip && \
-    cp -Rf workspace-configs-2021q1-v1/. /var/opt/workspaces && \
-    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-2021q1-v1 && \
+    wget -q https://github.com/johnjoo1/workspace-configs/archive/develop.zip && \
+    unzip develop.zip && \
+    cp -Rf workspace-configs-develop/. /var/opt/workspaces && \
+    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-develop && \
+#    cd /tmp && \
+#    wget -q https://github.com/dominodatalab/workspace-configs/archive/2021q1-v1.zip && \
+#    unzip 2021q1-v1.zip && \
+#    cp -Rf workspace-configs-2021q1-v1/. /var/opt/workspaces && \
+#    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-2021q1-v1 && \
 # RStudio
 # Adding .Rprofile with Domino customizations
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
@@ -368,7 +373,7 @@ RUN apt-get update && apt-get install -y curl && \
     /opt/code-server/node_modules/yarn/bin/yarn && \
     /opt/code-server/node_modules/yarn/bin/yarn upgrade --latest && \
     yarn cache clean && \
-# Fixing Elliptic which is part of Conda
+# F ixing Elliptic which is part of Conda
 #    sed -i 's/\"6.5.2"/\"6.5.3"/g' /opt/conda/share/jupyter/lab/staging/node_modules/elliptic/package.json && \
 #    npm upgrade --prefix /opt/conda/share/jupyter/lab/staging/node_modules/elliptic/ && \
 # Fix http-proxy module
@@ -381,7 +386,32 @@ RUN apt-get update && apt-get install -y curl && \
 ###############################################################
 #                       Jupyterlab Git                        #
 ###############################################################
-RUN pip install --upgrade jupyterlab-git && jupyter lab build
+RUN pip install --upgrade jupyterlab-git && jupyter lab build && jupyter labextension update --all
+
+#####################################################################################################
+# Upgrading Git client to address https://github.blog/2021-03-09-git-clone-vulnerability-announced/ #
+#####################################################################################################
+RUN add-apt-repository ppa:git-core/ppa -y && \
+    apt-get update && \
+    apt-get install git -y
+
+## ############################################################
+#       Install Git LFS                                      #
+##############################################################
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && \
+    apt-get install git-lfs && \
+    git lfs install
+
+###############################################################
+#       Add Goofys binaries to support Goofys for EDVs        #
+############################################################### 
+ADD https://github.com/kahing/goofys/releases/download/v0.24.0/goofys  /usr/bin/
+
+###############################################################
+#      Add SSHFS binaries to support SSHFS for EDVs           #
+###############################################################
+RUN apt-get update && apt-get install -y sshfs \
+    &&  sed -i "s/^#user_allow_other/user_allow_other/" /etc/fuse.conf
 
 ###############################################################
 #                         Clean Up                            #
@@ -396,4 +426,3 @@ RUN rm -rf /home/ubuntu/.cache/coursier
 RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
 # Remove execution permission from conda binary to prevent Anaconda license violations
 #RUN sed -i '/export PATH\=\$CONDA_DIR\/bin\:\$PATH/d' /home/ubuntu/.domino-defaults
-RUN chmod -x $CONDA_DIR/bin/conda
