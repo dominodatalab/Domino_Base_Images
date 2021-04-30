@@ -67,7 +67,7 @@ ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH 
 ENV MINICONDA_VERSION 4.7.12.1     
 ENV MINICONDA_MD5 81c773ff87af5cfac79ab862942ab6b3
-ENV PYTHON_VER 3.6
+ENV PYTHON_VER 3.7
 
 
 #set env variables so they are available in Domino runs/workspaces
