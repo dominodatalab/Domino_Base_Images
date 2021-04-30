@@ -159,6 +159,7 @@ foreign
 formatR
 fpc
 fracdiff
+future
 gains
 gam
 gbm

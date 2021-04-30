@@ -307,19 +307,16 @@ USER root
 RUN \
     echo hello7 && \
     cd /tmp && \
-    wget -q https://github.com/johnjoo1/workspace-configs/archive/develop.zip && \
+    wget -q https://github.com/dominodatalab/workspace-configs/archive/develop.zip && \
     unzip develop.zip && \
     cp -Rf workspace-configs-develop/. /var/opt/workspaces && \
     rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-develop && \
-#    cd /tmp && \
-#    wget -q https://github.com/dominodatalab/workspace-configs/archive/2021q1-v1.zip && \
-#    unzip 2021q1-v1.zip && \
-#    cp -Rf workspace-configs-2021q1-v1/. /var/opt/workspaces && \
-#    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-2021q1-v1 && \
 # RStudio
 # Adding .Rprofile with Domino customizations
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
     chown ubuntu:ubuntu /home/ubuntu/.Rprofile && \
+    chown -R ubuntu /var/run/rstudio-server && \
+    chown -R ubuntu /var/lib/rstudio-server && \
     chmod +x /var/opt/workspaces/rstudio/install  && \
     /var/opt/workspaces/rstudio/install && \
 # Jupyter
