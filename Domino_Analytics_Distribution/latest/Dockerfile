@@ -264,8 +264,7 @@ ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=396,driver<397 brand=tes
 # https://github.com/tensorflow/tensorflow/blob/v2.3.2/tensorflow/tools/dockerfiles/dockerfiles/gpu.Dockerfile
 ENV UBUNTU_VERSION=18.04
 ENV CUDA=11.3
-ENV CUDNN=7.6.4.38-1
-ENV CUDNN_MAJOR_VERSION=7
+ENV CUDNN=8.2.0
 ENV LIB_DIR_PREFIX=x86_64
 ENV LIBNVINFER=6.0.1-1
 ENV LIBNVINFER_MAJOR_VERSION=6
@@ -276,12 +275,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
        # prevents cublas from initializing in TF. See
        # https://github.com/tensorflow/tensorflow/issues/9489#issuecomment-562394257
        libcublas10=10.2.1.243-1 \ 
-       cuda-nvrtc-${CUDA/./-} \
-       cuda-cufft-${CUDA/./-} \
-       cuda-curand-${CUDA/./-} \
-       cuda-cusolver-${CUDA/./-} \
-       cuda-cusparse-${CUDA/./-} \
-       libcudnn7=${CUDNN}+cuda${CUDA} \
+    #    cuda-nvrtc-${CUDA/./-} \
+    #    cuda-cufft-${CUDA/./-} \
+    #    cuda-curand-${CUDA/./-} \
+    #    cuda-cusolver-${CUDA/./-} \
+    #    cuda-cusparse-${CUDA/./-} \
+       # Starting with version 11 various CUDA components are versioned separately
+       cuda-nvrtc-11-3 \
+       cuda-cufft-10-4 \
+       cuda-curand-10-2 \
+       cuda-cusolver-11-1 \
+       cuda-cusparse-11-5 \
+       libcudnn8=${CUDNN}+cuda${CUDA} \
        libfreetype6-dev \
        libhdf5-serial-dev
 # Install TensorRT if not building for PowerPC
