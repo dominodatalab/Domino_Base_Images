@@ -315,10 +315,10 @@ RUN \
 # Adding .Rprofile with Domino customizations
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
     chown ubuntu:ubuntu /home/ubuntu/.Rprofile && \
-    chown -R ubuntu /var/run/rstudio-server && \
-    chown -R ubuntu /var/lib/rstudio-server && \
     chmod +x /var/opt/workspaces/rstudio/install  && \
     /var/opt/workspaces/rstudio/install && \
+    chown -R ubuntu /var/run/rstudio-server && \
+    chown -R ubuntu /var/lib/rstudio-server && \
 # Jupyter
     chmod +x /var/opt/workspaces/jupyter/install && \
     /var/opt/workspaces/jupyter/install && \
