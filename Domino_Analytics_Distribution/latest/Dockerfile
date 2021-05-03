@@ -403,6 +403,7 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
 #       Add Goofys binaries to support Goofys for EDVs        #
 ############################################################### 
 ADD https://github.com/kahing/goofys/releases/download/v0.24.0/goofys  /usr/bin/
+RUN chmod a+x /usr/bin/goofys
 
 ###############################################################
 #      Add SSHFS binaries to support SSHFS for EDVs           #
