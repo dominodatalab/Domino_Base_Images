@@ -263,7 +263,7 @@ ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=396,driver<397 brand=tes
 # See version of CUDA for version of Tensorflow: https://www.tensorflow.org/install/source#gpu
 # https://github.com/tensorflow/tensorflow/blob/v2.3.2/tensorflow/tools/dockerfiles/dockerfiles/gpu.Dockerfile
 ENV UBUNTU_VERSION=18.04
-ENV CUDA=10.1
+ENV CUDA=11.3
 ENV CUDNN=7.6.4.38-1
 ENV CUDNN_MAJOR_VERSION=7
 ENV LIB_DIR_PREFIX=x86_64
