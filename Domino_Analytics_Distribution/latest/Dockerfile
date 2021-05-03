@@ -31,7 +31,7 @@ RUN \
   aws/install  && \
   rm -rf awscliv2.zip aws && \
 
-# ADD SSH start script for Domino <4.x - COMMENTING OUT FOE SECURITY REASONS DOM-27573
+# ADD SSH start script for Domino <4.x - COMMENTING OUT FOR SECURITY REASONS DOM-27573
 #  apt-get install openssh-server -y && \
 #  mkdir -p /scripts && \
 #  printf "#!/bin/bash\\nservice ssh start\\n" > /scripts/start-ssh && \
@@ -370,7 +370,7 @@ RUN apt-get update && apt-get install -y curl && \
     /opt/code-server/node_modules/yarn/bin/yarn && \
     /opt/code-server/node_modules/yarn/bin/yarn upgrade --latest && \
     yarn cache clean && \
-# F ixing Elliptic which is part of Conda
+# Fixing Elliptic which is part of Conda
 #    sed -i 's/\"6.5.2"/\"6.5.3"/g' /opt/conda/share/jupyter/lab/staging/node_modules/elliptic/package.json && \
 #    npm upgrade --prefix /opt/conda/share/jupyter/lab/staging/node_modules/elliptic/ && \
 # Fix http-proxy module
@@ -421,5 +421,3 @@ RUN apt-get clean && \
 RUN rm -rf /home/ubuntu/.cache/coursier
 # Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
 RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
-# Remove execution permission from conda binary to prevent Anaconda license violations
-#RUN sed -i '/export PATH\=\$CONDA_DIR\/bin\:\$PATH/d' /home/ubuntu/.domino-defaults
