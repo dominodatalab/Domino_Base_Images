@@ -1,5 +1,3 @@
-
-
 FROM ubuntu:18.04
 LABEL maintainer="Domino Data Lab <support@dominodatalab.com>"
 LABEL "com.dominodatalab.www"="Domino Data Lab"
@@ -32,11 +30,12 @@ RUN \
   curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" &&   unzip awscliv2.zip && \
   aws/install  && \
   rm -rf awscliv2.zip aws && \
-# ADD SSH start script for Domino <4.x
-  apt-get install openssh-server -y && \
-  mkdir -p /scripts && \
-  printf "#!/bin/bash\\nservice ssh start\\n" > /scripts/start-ssh && \
-  chmod +x /scripts/start-ssh && \
+
+# ADD SSH start script for Domino <4.x - COMMENTING OUT FOR SECURITY REASONS DOM-27573
+#  apt-get install openssh-server -y && \
+#  mkdir -p /scripts && \
+#  printf "#!/bin/bash\\nservice ssh start\\n" > /scripts/start-ssh && \
+#  chmod +x /scripts/start-ssh && \
   echo 'export PYTHONIOENCODING=utf-8' >> /home/ubuntu/.domino-defaults && \
   echo 'export LANG=en_US.UTF-8' >> /home/ubuntu/.domino-defaults && \
   echo 'export JOBLIB_TEMP_FOLDER=/tmp' >> /home/ubuntu/.domino-defaults && \
@@ -53,14 +52,14 @@ RUN echo "Set disable_coredump false" >> /etc/sudo.conf
 #######################################################
 #                   Install R Base                    #
 #######################################################
-ENV R_BASE_VERSION 4.0.3
+ENV R_BASE_VERSION 4.0.5
 RUN \
+    apt remove r-base* --purge && \
+    apt-get install dirmngr && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \
     add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/' && \
     apt-get update -y && \
-    apt-get install \
-        r-base=${R_BASE_VERSION}-* \
-        r-base-dev=${R_BASE_VERSION}-* -y && \
+    apt-get install -y r-base=${R_BASE_VERSION}-* r-base-dev=${R_BASE_VERSION}-*  && \
 # Dependencies of various R packages
     apt-get install -y unixodbc-dev libgdal-dev libcairo2-dev  libxt-dev libgmp3-dev jags libgsl0-dev libx11-dev mesa-common-dev libglu1-mesa-dev libmpfr-dev libfftw3-dev libtiff5-dev libudunits2-dev libopenmpi-dev libmysqlclient-dev libgit2-dev -y && \
 # Required for rJava
@@ -125,8 +124,7 @@ COPY requirements.txt .
 RUN $CONDA_DIR/bin/conda install -c conda-forge uWSGI && \
     pip install -r requirements.txt
 # Install packages used in Domino quick-start project
-RUN pip install git+https://github.com/dominodatalab/python-domino.git matplotlib && \
-    $CONDA_DIR/bin/conda install mkl_fft mkl_random
+RUN pip install git+https://github.com/dominodatalab/python-domino.git
 # Configure matplotlib
 RUN mkdir -p /home/ubuntu/.config/matplotlib && \
     echo "backend : Cairo" > /home/ubuntu/.config/matplotlib/matplotlibrc  && \
@@ -207,7 +205,7 @@ RUN mkdir -p /usr/local/share/jupyter && \
     echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults
 USER ubuntu
 RUN export SCALA_VERSION=2.12.9 && \
-    export ALMOND_VERSION=0.10.9 && \
+    export ALMOND_VERSION=0.11.2 && \
     export KERNEL_ID=scala && \
     cd /tmp && curl -L -o coursier https://git.io/coursier-cli && chmod +x coursier && \
     ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
@@ -284,23 +282,25 @@ RUN wget https://developer.download.nvidia.com/compute/machine-learning/repos/ub
     apt install ./libnvinfer7_7.1.3-1+cuda11.0_amd64.deb && \
     apt-get update
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
-
 #######################################################
 #      Installing Notebooks,Workspaces,IDEs,etc       #
 #######################################################
 # Add workspace install and configuration scripts
 RUN \
+    echo hello7 && \
     cd /tmp && \
-    wget -q https://github.com/dominodatalab/workspace-configs/archive/2021q1-v1.zip && \
-    unzip 2021q1-v1.zip && \
-    cp -Rf workspace-configs-2021q1-v1/. /var/opt/workspaces && \
-    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-2021q1-v1 && \
+    wget -q https://github.com/dominodatalab/workspace-configs/archive/develop.zip && \
+    unzip develop.zip && \
+    cp -Rf workspace-configs-develop/. /var/opt/workspaces && \
+    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-develop && \
 # RStudio
 # Adding .Rprofile with Domino customizations
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
     chown ubuntu:ubuntu /home/ubuntu/.Rprofile && \
     chmod +x /var/opt/workspaces/rstudio/install  && \
     /var/opt/workspaces/rstudio/install && \
+    chown -R ubuntu /var/run/rstudio-server && \
+    chown -R ubuntu /var/lib/rstudio-server && \
 # Jupyter
     chmod +x /var/opt/workspaces/jupyter/install && \
     /var/opt/workspaces/jupyter/install && \
@@ -314,17 +314,16 @@ RUN \
     chmod +x /var/opt/workspaces/Jupyterlab/install && \
     /var/opt/workspaces/Jupyterlab/install && \
 # Jupyter server proxy
+    conda install -y -c conda-forge nodejs && \
     pip install jupyter-server-proxy && \
     jupyter labextension install @jupyterlab/server-proxy && \
-    chown -R ubuntu:ubuntu /home/ubuntu/ && \
-# SQLPAD
-    chmod +x /var/opt/workspaces/sqlpad/install && \
-    /var/opt/workspaces/sqlpad/install
+    chown -R ubuntu:ubuntu /home/ubuntu/
 
 #######################################################
 #                     Some fixes                      #
 #######################################################
-RUN pip install pyodbc tensorflow-gpu && \
+RUN apt-get update && apt-get install -y curl && \
+    pip install pyodbc tensorflow-gpu && \
 # Provide Sudo in container
     echo "ubuntu    ALL=NOPASSWD: ALL" >> /etc/sudoers && \
 # Fix some npm modules manually that ship with ALL current versions of nodejs
@@ -346,8 +345,8 @@ RUN pip install pyodbc tensorflow-gpu && \
 # Fix handlebars which does not work to update with npm but needs yarn
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
-    apt update && apt install yarn && \
-    apt update && apt install --no-install-recommends yarn && \
+    apt update && apt install -y yarn && \
+    apt update && apt install -y --no-install-recommends yarn && \
     yarn add handlebars && \
     yarn upgrade --latest && \
     /opt/code-server/node_modules/yarn/bin/yarn && \
@@ -366,41 +365,33 @@ RUN pip install pyodbc tensorflow-gpu && \
 ###############################################################
 #                       Jupyterlab Git                        #
 ###############################################################
-RUN pip install --upgrade jupyterlab-git && jupyter lab build
+RUN pip install --upgrade jupyterlab-git && jupyter lab build && jupyter labextension update --all
+
+#####################################################################################################
+# Upgrading Git client to address https://github.blog/2021-03-09-git-clone-vulnerability-announced/ #
+#####################################################################################################
+RUN add-apt-repository ppa:git-core/ppa -y && \
+    apt-get update && \
+    apt-get install git -y
+
+## ############################################################
+#       Install Git LFS                                      #
+##############################################################
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && \
+    apt-get install git-lfs && \
+    git lfs install
 
 ###############################################################
-#                  Visual debugger for Jupyter                #
-###############################################################
-RUN conda install -c fastai nbdev && \
-    conda install xeus-python -c conda-forge
+#       Add Goofys binaries to support Goofys for EDVs        #
+############################################################### 
+ADD https://github.com/kahing/goofys/releases/download/v0.24.0/goofys  /usr/bin/
+RUN chmod a+x /usr/bin/goofys
 
 ###############################################################
-#                           ARROW                             #
+#      Add SSHFS binaries to support SSHFS for EDVs           #
 ###############################################################
-RUN conda install -c conda-forge pyarrow
-# Needs user ubuntu as install is done by user '_apt'
-USER ubuntu
-RUN sudo apt update && \
-        sudo apt install -y -V ca-certificates lsb-release wget && \
-        if [ $(lsb_release --codename --short) = "stretch" ]; then \
-    sudo tee /etc/apt/sources.list.d/backports.list <<APT_LINE \
-    deb http://deb.debian.org/debian $(lsb_release --codename --short)-backports main \
-    APT_LINE; \
-    fi && \
-    sudo wget https://apache.bintray.com/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb && \
-    sudo apt install -y -V ./apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb && \
-    sudo apt update && \
-    sudo apt install -y -V libarrow-dev # For C++ && \
-    sudo apt install -y -V libarrow-glib-dev # For GLib (C) && \
-    sudo apt install -y -V libarrow-dataset-dev # For Arrow Dataset C++ && \
-    sudo apt install -y -V libarrow-flight-dev # For Flight C++ && \
-    sudo apt install -y -V libplasma-dev # For Plasma C++ && \
-    sudo apt install -y -V libplasma-glib-dev # For Plasma GLib (C) && \
-    sudo apt install -y -V libgandiva-dev # For Gandiva C++ && \
-    sudo apt install -y -V libgandiva-glib-dev # For Gandiva GLib (C) && \
-    sudo apt install -y -V libparquet-dev # For Apache Parquet C++ && \
-    sudo apt install -y -V libparquet-glib-dev # For Apache Parquet GLib (C)
-USER root
+RUN apt-get update && apt-get install -y sshfs \
+    &&  sed -i "s/^#user_allow_other/user_allow_other/" /etc/fuse.conf
 
 ###############################################################
 #                         Clean Up                            #
@@ -413,6 +404,3 @@ RUN apt-get clean && \
 RUN rm -rf /home/ubuntu/.cache/coursier
 # Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
 RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
-# Remove execution permission from conda binary to prevent Anaconda license violations
-#RUN sed -i '/export PATH\=\$CONDA_DIR\/bin\:\$PATH/d' /home/ubuntu/.domino-defaults
-RUN chmod -x $CONDA_DIR/bin/conda
