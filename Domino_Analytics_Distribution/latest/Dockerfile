@@ -204,11 +204,11 @@ RUN mkdir -p /usr/local/share/jupyter && \
     echo 'export PATH=$PATH:$SCALA_HOME/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
     echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults
 USER ubuntu
-# RUN export SCALA_VERSION=2.12.9 && \
-#     export ALMOND_VERSION=0.11.2 && \
-#     export KERNEL_ID=scala && \
-#     cd /tmp && curl -L -o coursier https://git.io/coursier-cli && chmod +x coursier && \
-#     ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
+RUN export SCALA_VERSION=2.12.9 && \
+    export ALMOND_VERSION=0.11.2 && \
+    export KERNEL_ID=scala && \
+    cd /tmp && curl -L -o coursier https://git.io/coursier-cli && chmod +x coursier && \
+    ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -M almond.ScalaKernel -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
 USER root
 # SBT
 RUN \
