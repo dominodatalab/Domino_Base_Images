@@ -317,7 +317,8 @@ RUN \
     conda install -y -c conda-forge nodejs && \
     pip install jupyter-server-proxy && \
     jupyter labextension install @jupyterlab/server-proxy && \
-    chown -R ubuntu:ubuntu /home/ubuntu/
+    chown -R ubuntu:ubuntu /home/ubuntu/ && \
+    pip install --upgrade jupyterlab jupyterlab-git
 
 #######################################################
 #                     Some fixes                      #
@@ -361,11 +362,6 @@ RUN apt-get update && apt-get install -y curl && \
 # Fix serialize-javascript
     sed -i 's/\"2.1.2"/\"4.0.0"/g' /opt/conda/share/jupyter/lab/staging/node_modules/serialize-javascript/package.json && \
     npm upgrade --prefix /opt/conda/share/jupyter/lab/staging/node_modules/serialize-javascript/
-
-###############################################################
-#                       Jupyterlab Git                        #
-###############################################################
-RUN pip install --upgrade jupyterlab-git && jupyter lab build && jupyter labextension update --all
 
 #####################################################################################################
 # Upgrading Git client to address https://github.blog/2021-03-09-git-clone-vulnerability-announced/ #
