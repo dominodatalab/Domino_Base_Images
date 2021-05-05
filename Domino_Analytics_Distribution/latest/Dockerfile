@@ -190,117 +190,6 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B97B0AFCAA1A47F044F
     rm -rf /var/lib/apt/lists/*
 
 #######################################################
-#                  R KERNEL IN JUPYTER                #
-#######################################################
-RUN R --no-save -e "install.packages(c('devtools'))" && \
-    R --no-save -e 'install.packages("pbdZMQ", clean=TRUE)'
-USER ubuntu
-RUN R --no-save -e 'devtools::install_github("IRkernel/IRkernel"); IRkernel::installspec()'
-# Scala Kernel
-USER root
-RUN mkdir -p /usr/local/share/jupyter && \
-    chown ubuntu:ubuntu -R /usr/local/share/jupyter && \
-    echo 'export SCALA_HOME=/usr/share/scala' >> /home/ubuntu/.domino-defaults && \
-    echo 'export PATH=$PATH:$SCALA_HOME/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
-    echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults
-USER ubuntu
-RUN export SCALA_VERSION=2.12.9 && \
-    export ALMOND_VERSION=0.11.2 && \
-    export KERNEL_ID=scala && \
-    cd /tmp && curl -L -o coursier https://git.io/coursier-cli && chmod +x coursier && \
-    ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
-USER root
-# SBT
-RUN \
-    echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 && \
-    apt-get update -y && \
-    apt-get install sbt -y && \
-# Julia
-    rm -rf /usr/bin/julia && \
-    cd /home/ubuntu && \
-    wget -q https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz && \
-    tar xzf julia-1.5.3-linux-x86_64.tar.gz && \
-    chown -R ubuntu:ubuntu /home/ubuntu/julia-1.5.3 && \
-    ln -s /home/ubuntu/julia-1.5.3/bin/julia /usr/bin/julia && \
-    rm -rf /home/ubuntu/julia-1.5.3-linux-x86_64.tar.gz && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/*
-USER ubuntu
-RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
-USER root
-
-#######################################################
-#         Install CUDA and GPU dependencies           #
-#######################################################
-# https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/10.1/ubuntu18.04-x86_64/base/Dockerfile
-# Install CUDA Base
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#    gnupg2 curl ca-certificates && \
-#    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
-#    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
-#    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
-#    apt-get purge --autoremove -y curl && \
-#    rm -rf /var/lib/apt/lists/*
-#ENV CUDA_VERSION 10.1.243
-#ENV CUDA_PKG_VERSION 10-1=$CUDA_VERSION-1
-## For libraries in the cuda-compat-* package: https://docs.nvidia.com/cuda/eula/index.html#attachment-a
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#    cuda-cudart-$CUDA_PKG_VERSION \
-#    cuda-compat-10-1 \
-#    && ln -s cuda-10.1 /usr/local/cuda && \
-#    rm -rf /var/lib/apt/lists/*
-## Required for nvidia-docker v1
-#RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
-#    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-#ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
-#ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
-## nvidia-container-runtime
-#ENV NVIDIA_VISIBLE_DEVICES all
-#ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-#ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
-#
-## See version of CUDA for version of Tensorflow: https://www.tensorflow.org/install/source#gpu
-## https://github.com/tensorflow/tensorflow/blob/v2.3.2/tensorflow/tools/dockerfiles/dockerfiles/gpu.Dockerfile
-#ENV UBUNTU_VERSION=18.04
-#ENV CUDA=10.1
-#ENV CUDNN=7.6.4.38-1
-#ENV CUDNN_MAJOR_VERSION=7
-#ENV LIB_DIR_PREFIX=x86_64
-#ENV LIBNVINFER=6.0.1-1
-#ENV LIBNVINFER_MAJOR_VERSION=6
-#SHELL ["/bin/bash", "-c"]
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#        cuda-command-line-tools-${CUDA/./-} \
-#        # There appears to be a regression in libcublas10=10.2.2.89-1 which
-#        # prevents cublas from initializing in TF. See
-#        # https://github.com/tensorflow/tensorflow/issues/9489#issuecomment-562394257
-#        libcublas10=10.2.1.243-1 \ 
-#        cuda-nvrtc-${CUDA/./-} \
-#        cuda-cufft-${CUDA/./-} \
-#        cuda-curand-${CUDA/./-} \
-#        cuda-cusolver-${CUDA/./-} \
-#        cuda-cusparse-${CUDA/./-} \
-#        libcudnn7=${CUDNN}+cuda${CUDA} \
-#        libfreetype6-dev \
-#        libhdf5-serial-dev
-## Install TensorRT if not building for PowerPC
-#RUN [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-#        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda${CUDA} \
-#        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda${CUDA} \
-#        && apt-get clean \
-#        && rm -rf /var/lib/apt/lists/*; }
-## For CUDA profiling, TensorFlow requires CUPTI.
-#ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-## Link the libcuda stub to the location where tensorflow is searching for it and reconfigure
-## dynamic linker run-time bindings
-#RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-#    && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-#    && ldconfig
-#ENV TF_PACKAGE=tensorflow-gpu
-#ENV TF_PACKAGE_VERSION=2.3.0
-#RUN pip install --no-cache-dir ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
-#######################################################
 #      Installing Notebooks,Workspaces,IDEs,etc       #
 #######################################################
 # Add workspace install and configuration scripts
@@ -335,7 +224,8 @@ RUN \
     conda install -y -c conda-forge nodejs && \
     pip install jupyter-server-proxy && \
     jupyter labextension install @jupyterlab/server-proxy && \
-    chown -R ubuntu:ubuntu /home/ubuntu/
+    chown -R ubuntu:ubuntu /home/ubuntu/ && \
+    pip install --upgrade jupyterlab jupyterlab-git
 
 #######################################################
 #                     Some fixes                      #
@@ -380,11 +270,6 @@ RUN apt-get update && apt-get install -y curl && \
     sed -i 's/\"2.1.2"/\"4.0.0"/g' /opt/conda/share/jupyter/lab/staging/node_modules/serialize-javascript/package.json && \
     npm upgrade --prefix /opt/conda/share/jupyter/lab/staging/node_modules/serialize-javascript/
 
-###############################################################
-#                       Jupyterlab Git                        #
-###############################################################
-RUN pip install --upgrade jupyterlab-git && jupyter lab build && jupyter labextension update --all
-
 #####################################################################################################
 # Upgrading Git client to address https://github.blog/2021-03-09-git-clone-vulnerability-announced/ #
 #####################################################################################################
@@ -422,3 +307,43 @@ RUN apt-get clean && \
 RUN rm -rf /home/ubuntu/.cache/coursier
 # Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
 RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
+
+#######################################################
+#                  R KERNEL IN JUPYTER                #
+#######################################################
+RUN R --no-save -e "install.packages(c('devtools'))" && \
+    R --no-save -e 'install.packages("pbdZMQ", clean=TRUE)'
+USER ubuntu
+RUN R --no-save -e 'devtools::install_github("IRkernel/IRkernel"); IRkernel::installspec()'
+# Scala Kernel
+USER root
+RUN mkdir -p /usr/local/share/jupyter && \
+    chown ubuntu:ubuntu -R /usr/local/share/jupyter && \
+    echo 'export SCALA_HOME=/usr/share/scala' >> /home/ubuntu/.domino-defaults && \
+    echo 'export PATH=$PATH:$SCALA_HOME/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
+    echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults
+USER ubuntu
+RUN export SCALA_VERSION=2.12.9 && \
+    export ALMOND_VERSION=0.10.9 && \
+    export KERNEL_ID=scala && \
+    cd /tmp && curl -Lo coursier https://git.io/coursier-cli && chmod +x coursier && \
+    ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
+USER root
+# SBT
+RUN \
+    echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 && \
+    apt-get update -y && \
+    apt-get install sbt -y && \
+# Julia
+    rm -rf /usr/bin/julia && \
+    cd /home/ubuntu && \
+    wget -q https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz && \
+    tar xzf julia-1.5.3-linux-x86_64.tar.gz && \
+    chown -R ubuntu:ubuntu /home/ubuntu/julia-1.5.3 && \
+    ln -s /home/ubuntu/julia-1.5.3/bin/julia /usr/bin/julia && \
+    rm -rf /home/ubuntu/julia-1.5.3-linux-x86_64.tar.gz && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -Rf /tmp/*
+USER ubuntu
+RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
