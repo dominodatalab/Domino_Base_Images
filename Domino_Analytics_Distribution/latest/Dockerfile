@@ -347,4 +347,3 @@ RUN \
     rm -Rf /tmp/*
 USER ubuntu
 RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
-USER root
