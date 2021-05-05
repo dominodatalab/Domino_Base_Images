@@ -190,47 +190,6 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B97B0AFCAA1A47F044F
     rm -rf /var/lib/apt/lists/*
 
 #######################################################
-#                  R KERNEL IN JUPYTER                #
-#######################################################
-RUN R --no-save -e "install.packages(c('devtools'))" && \
-    R --no-save -e 'install.packages("pbdZMQ", clean=TRUE)'
-USER ubuntu
-RUN R --no-save -e 'devtools::install_github("IRkernel/IRkernel"); IRkernel::installspec()'
-# Scala Kernel
-USER root
-RUN mkdir -p /usr/local/share/jupyter && \
-    chown ubuntu:ubuntu -R /usr/local/share/jupyter && \
-    echo 'export SCALA_HOME=/usr/share/scala' >> /home/ubuntu/.domino-defaults && \
-    echo 'export PATH=$PATH:$SCALA_HOME/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
-    echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults
-USER ubuntu
-RUN export SCALA_VERSION=2.12.9 && \
-    export ALMOND_VERSION=0.10.9 && \
-    export KERNEL_ID=scala && \
-    cd /tmp && curl -Lo coursier https://git.io/coursier-cli && chmod +x coursier && \
-    ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
-USER root
-# SBT
-RUN \
-    echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 && \
-    apt-get update -y && \
-    apt-get install sbt -y && \
-# Julia
-    rm -rf /usr/bin/julia && \
-    cd /home/ubuntu && \
-    wget -q https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz && \
-    tar xzf julia-1.5.3-linux-x86_64.tar.gz && \
-    chown -R ubuntu:ubuntu /home/ubuntu/julia-1.5.3 && \
-    ln -s /home/ubuntu/julia-1.5.3/bin/julia /usr/bin/julia && \
-    rm -rf /home/ubuntu/julia-1.5.3-linux-x86_64.tar.gz && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/*
-USER ubuntu
-RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
-USER root
-
-#######################################################
 #      Installing Notebooks,Workspaces,IDEs,etc       #
 #######################################################
 # Add workspace install and configuration scripts
@@ -348,3 +307,44 @@ RUN apt-get clean && \
 RUN rm -rf /home/ubuntu/.cache/coursier
 # Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
 RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
+
+#######################################################
+#                  R KERNEL IN JUPYTER                #
+#######################################################
+RUN R --no-save -e "install.packages(c('devtools'))" && \
+    R --no-save -e 'install.packages("pbdZMQ", clean=TRUE)'
+USER ubuntu
+RUN R --no-save -e 'devtools::install_github("IRkernel/IRkernel"); IRkernel::installspec()'
+# Scala Kernel
+USER root
+RUN mkdir -p /usr/local/share/jupyter && \
+    chown ubuntu:ubuntu -R /usr/local/share/jupyter && \
+    echo 'export SCALA_HOME=/usr/share/scala' >> /home/ubuntu/.domino-defaults && \
+    echo 'export PATH=$PATH:$SCALA_HOME/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
+    echo 'export PATH=$PATH:/tmp:$PATH' >> /home/ubuntu/.domino-defaults
+USER ubuntu
+RUN export SCALA_VERSION=2.12.9 && \
+    export ALMOND_VERSION=0.10.9 && \
+    export KERNEL_ID=scala && \
+    cd /tmp && curl -Lo coursier https://git.io/coursier-cli && chmod +x coursier && \
+    ./coursier launch --fork almond:$ALMOND_VERSION --scala $SCALA_VERSION -- --install --global --id $KERNEL_ID --display-name "Scala ($SCALA_VERSION)" --force
+USER root
+# SBT
+RUN \
+    echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 && \
+    apt-get update -y && \
+    apt-get install sbt -y && \
+# Julia
+    rm -rf /usr/bin/julia && \
+    cd /home/ubuntu && \
+    wget -q https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz && \
+    tar xzf julia-1.5.3-linux-x86_64.tar.gz && \
+    chown -R ubuntu:ubuntu /home/ubuntu/julia-1.5.3 && \
+    ln -s /home/ubuntu/julia-1.5.3/bin/julia /usr/bin/julia && \
+    rm -rf /home/ubuntu/julia-1.5.3-linux-x86_64.tar.gz && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -Rf /tmp/*
+USER ubuntu
+RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
+USER root
