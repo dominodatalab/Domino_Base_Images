@@ -296,18 +296,6 @@ RUN chmod a+x /usr/bin/goofys
 RUN apt-get update && apt-get install -y sshfs \
     &&  sed -i "s/^#user_allow_other/user_allow_other/" /etc/fuse.conf
 
-###############################################################
-#                         Clean Up                            #
-###############################################################
-RUN apt-get clean && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/*
-# Removing coursier due to security vulnerabilities
-RUN rm -rf /home/ubuntu/.cache/coursier
-# Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
-RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
-
 #######################################################
 #                  R KERNEL IN JUPYTER                #
 #######################################################
@@ -347,3 +335,15 @@ RUN \
     rm -Rf /tmp/*
 USER ubuntu
 RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
+
+###############################################################
+#                         Clean Up                            #
+###############################################################
+RUN apt-get clean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -Rf /tmp/*
+# Removing coursier due to security vulnerabilities
+RUN rm -rf /home/ubuntu/.cache/coursier
+# Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
+RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
