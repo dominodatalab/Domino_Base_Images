@@ -339,7 +339,7 @@ RUN julia -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
 ###############################################################
 #                         Clean Up                            #
 ###############################################################
-USER ROOT
+USER root
 RUN apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
