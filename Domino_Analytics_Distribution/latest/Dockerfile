@@ -224,8 +224,8 @@ USER root
 RUN \
     echo hello7 && \
     cd /tmp && \
-    wget -q https://github.com/dominodatalab/workspace-configs/archive/develop.zip && \
-    unzip develop.zip && \
+    wget -q https://github.com/dominodatalab/workspace-configs/archive/update-rstudio-start.zip && \
+    unzip update-rstudio-start.zip && \
     cp -Rf workspace-configs-develop/. /var/opt/workspaces && \
     rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-develop && \
 # RStudio
