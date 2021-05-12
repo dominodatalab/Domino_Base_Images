@@ -226,8 +226,8 @@ RUN \
     cd /tmp && \
     wget -q https://github.com/dominodatalab/workspace-configs/archive/update-rstudio-start.zip && \
     unzip update-rstudio-start.zip && \
-    cp -Rf workspace-configs-develop/. /var/opt/workspaces && \
-    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-develop && \
+    cp -Rf workspace-configs-update-rstudio-start/. /var/opt/workspaces && \
+    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-update-rstudio-start && \
 # RStudio
 # Adding .Rprofile with Domino customizations
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
