@@ -304,8 +304,6 @@ RUN \
     chown ubuntu:ubuntu /home/ubuntu/.Rprofile && \
     chmod +x /var/opt/workspaces/rstudio/install  && \
     /var/opt/workspaces/rstudio/install && \
-    chown -R ubuntu /var/run/rstudio-server && \
-    chown -R ubuntu /var/lib/rstudio-server && \
 # Jupyter
     chmod +x /var/opt/workspaces/jupyter/install && \
     /var/opt/workspaces/jupyter/install && \
