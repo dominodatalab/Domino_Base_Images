@@ -1,6 +1,7 @@
 FROM ubuntu:18.04
-
 LABEL maintainer="Domino Data Lab <support@dominodatalab.com>"
+LABEL "com.dominodatalab.www"="Domino Data Lab"
+LABEL description="Domino Analytics Distribution"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -41,7 +42,7 @@ ENV LANG en_US.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 ###### Install R #####
-ARG R_VERSION=4.0.2
+ARG R_VERSION=4.0.5
 ARG OS_IDENTIFIER=ubuntu-1804
 
 # Install R
@@ -65,10 +66,9 @@ RUN wget https://cdn.rstudio.com/r/${OS_IDENTIFIER}/pkgs/r-${R_VERSION}_1_amd64.
 # https://repo.continuum.io/miniconda/
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH 
-ENV MINICONDA_VERSION 4.7.12.1     
-ENV MINICONDA_MD5 81c773ff87af5cfac79ab862942ab6b3
-ENV PYTHON_VER 3.6
-
+ENV MINICONDA_VERSION py38_4.8.3
+ENV MINICONDA_MD5 d63adf39f2c220950a063e0529d4ff74
+ENV PYTHON_VER 3.8
 
 #set env variables so they are available in Domino runs/workspaces
 RUN \
@@ -102,23 +102,25 @@ RUN \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
-
-#### Installing Notebooks,Workspaces,IDEs,etc ####
+#### Installing Notebooks, Workspaces, IDEs, etc ####
 
 # Clone in workspaces install scripts
 # Add workspace configuration files
 RUN \
     cd /tmp && \
-    wget -q https://github.com/dominodatalab/workspace-configs/archive/2020q1-v4.zip && \
-    unzip 2020q1-v4.zip && \
-    cp -Rf workspace-configs-2020q1-v4/. /var/opt/workspaces && \
-    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-2020q1-v4
-
+    wget -q https://github.com/dominodatalab/workspace-configs/archive/develop.zip && \
+    unzip develop.zip && \
+    cp -Rf workspace-configs-develop/. /var/opt/workspaces && \
+    rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/develop
 
  # #add update .Rprofile with Domino customizations
 RUN \
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
     chown ubuntu:ubuntu /home/ubuntu/.Rprofile && \
+    chmod +x /var/opt/workspaces/rstudio/install  && \
+    /var/opt/workspaces/rstudio/install && \
+    chown -R ubuntu /var/run/rstudio-server && \
+    chown -R ubuntu /var/lib/rstudio-server && \
 
 # # # # #Install Rstudio from workspaces
     chmod +x /var/opt/workspaces/rstudio/install  && \
@@ -127,11 +129,11 @@ RUN \
 # # # # # #Install Jupyterlab from workspaces
     chmod +x /var/opt/workspaces/Jupyterlab/install && \
     /var/opt/workspaces/Jupyterlab/install && \
- 
+
 # # # #Install Jupyter from workspaces
     chmod +x /var/opt/workspaces/jupyter/install && \
     /var/opt/workspaces/jupyter/install && \
-    
+
 #Required for VSCode
     apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
