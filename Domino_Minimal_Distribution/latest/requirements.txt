@@ -1,0 +1,9 @@
+dash
+dash_table_experiments
+Flask
+Flask-Compress
+Flask-Cors
+jsonify
+matplotlib
+pandas
+sklearn

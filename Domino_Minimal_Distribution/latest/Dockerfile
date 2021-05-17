@@ -117,14 +117,12 @@ RUN \
 RUN \
     mv /var/opt/workspaces/rstudio/.Rprofile /home/ubuntu/.Rprofile && \
     chown ubuntu:ubuntu /home/ubuntu/.Rprofile && \
-    chmod +x /var/opt/workspaces/rstudio/install  && \
-    /var/opt/workspaces/rstudio/install && \
-    chown -R ubuntu /var/run/rstudio-server && \
-    chown -R ubuntu /var/lib/rstudio-server && \
 
 # # # # #Install Rstudio from workspaces
     chmod +x /var/opt/workspaces/rstudio/install  && \
     /var/opt/workspaces/rstudio/install && \
+    chown -R ubuntu /var/run/rstudio-server && \
+    chown -R ubuntu /var/lib/rstudio-server && \
 
 # # # # # #Install Jupyterlab from workspaces
     chmod +x /var/opt/workspaces/Jupyterlab/install && \
