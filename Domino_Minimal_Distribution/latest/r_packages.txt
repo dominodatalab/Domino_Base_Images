@@ -1,5 +1,0 @@
-caret
-ggplot2
-plumber
-shiny
-yaml
