@@ -2,14 +2,18 @@
 
 ## Repo
 
-dominodatalab/base:DMD_py3.8_r4.0.5_2021q2
+quay.io/domino/base:Ubuntu18_DMD_Py3.8_R4.0-20210517
 
 ## Description
 * Ubuntu 18.04
 * Mini-conda 4.8.3
 * Python 3.8
 * R 4.0.5
-* Jupyter, Jupyterlab, VSCode, Rstudio
+* Jupyter, Jupyterlab, VSCode, RStudio
+
+## Change Log
+
+* May 17th, 2021: Bumped Python, R, and Miniconda versions. Grab updated workspace configs, including bumping the RStudio version to 1.4.
 
 ## Notebook Properities
 
