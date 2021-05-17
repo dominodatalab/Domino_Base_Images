@@ -1,14 +1,31 @@
-# Domino Analytics Distribution 20210126
+# Domino Analytics Distribution 20210503
 
 ## Repo
-quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210126
+quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210503
 
 ## Description
 * Ubuntu 18.04
 * Mini-conda 4.8.3 
 * Python 3.8
-* R 4.0.3
+* R 4.0.5
 * Jupyter, Jupyterlab, VSCode, Rstudio
+
+## Change Log
+* May 3rd, 2021
+  * R 4.0.2 => 4.0.5
+  * Miniconda 4.7.12.1 => py38_4.8.3
+  * Python 3.6 => 3.8
+  * Use updated workspace configs
+    * Stop pinning JupyterLab version < 3.0.0
+    * Bump RStudio version to 1.4, add required chowns
+  * Security Fixes:
+    * Comment out openssh server 
+    * Upgrade git client version
+    * Remove scala kernel (almond)
+  * Install git lfs
+  * Add Goofys binaries to support EDV's
+  * Add SSHFS binaries to support EDV's
+  * Add future as R package
 
 ## Notebook Properities
 
