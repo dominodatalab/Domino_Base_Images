@@ -258,8 +258,9 @@ RUN \
 #######################################################
 #                         Spark                       #
 #######################################################
+### Inspired by https://docs.dominodatalab.com/en/4.4.2/reference/spark/on_demand_spark/Configuring_prerequisites.html
 RUN chmod a+x /var/opt/workspaces/pyspark/start && \
-    pip install pyspark
+    pip install pyspark && \
     ### Set SPARK_HOME on the driver to point to the version installed by pyspark
     SPARK_HOME=$(pip show pyspark | grep "Location" | awk '{print $2}')/pyspark && \
     chown -R ubuntu:ubuntu ${SPARK_HOME} && \
@@ -267,7 +268,7 @@ RUN chmod a+x /var/opt/workspaces/pyspark/start && \
     echo "export PATH=\$PATH:${SPARK_HOME}/bin" >> /home/ubuntu/.domino-defaults && \
     ### Optionally copy spark-submit to spark-submit.sh to be able to run from Domino jobs
     spark_submit_path=$(which spark-submit) && \
-    cp ${spark_submit_path} ${spark_submit_path}.sh
+    cp ${spark_submit_path} ${spark_submit_path}.sh && \
     ### Hadoop does not come with the required binaries for AWS access so we add them
     ### hadoop-aws.jar must match the hadoop-common.jar version of your install
     SPARK_HOME=$(pip show pyspark | grep "Location" | awk '{print $2}')/pyspark && \
