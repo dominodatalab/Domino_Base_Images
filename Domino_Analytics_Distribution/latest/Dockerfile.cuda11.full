@@ -52,7 +52,7 @@ RUN echo "Set disable_coredump false" >> /etc/sudo.conf
 #######################################################
 #                   Install R Base                    #
 #######################################################
-ENV R_BASE_VERSION 4.0.5
+ENV R_BASE_VERSION 4.1.0
 RUN \
     apt remove r-base* --purge && \
     apt-get install dirmngr && \

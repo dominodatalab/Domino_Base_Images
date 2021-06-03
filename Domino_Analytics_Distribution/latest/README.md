@@ -7,10 +7,12 @@ quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210503
 * Ubuntu 18.04
 * Mini-conda 4.8.3 
 * Python 3.8
-* R 4.0.5
+* R 4.1.0
 * Jupyter, Jupyterlab, VSCode, Rstudio
 
 ## Change Log
+* June 3rd, 2021
+  * R 4.0.5 => 4.1.0
 * May 3rd, 2021
   * R 4.0.2 => 4.0.5
   * Miniconda 4.7.12.1 => py38_4.8.3
