@@ -1,0 +1,2 @@
+FROM Ubuntu18_DAD_Py3.8_R4.0-20210503_CUDA11_full
+RUN rm -rf /etc/apt/sources.list.d/sbt.list
