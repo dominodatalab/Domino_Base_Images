@@ -1,2 +1,2 @@
-FROM Ubuntu18_DAD_Py3.8_R4.0-20210503_CUDA11
+FROM quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210503_CUDA11
 RUN rm -rf /etc/apt/sources.list.d/sbt.list
