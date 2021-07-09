@@ -404,3 +404,6 @@ RUN apt-get clean && \
 RUN rm -rf /home/ubuntu/.cache/coursier
 # Removing PyYAML due to security vulnerabilities. Was not pip installed, so removing manually
 RUN rm -rf /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1.dist-info /opt/conda/lib/python3.8/site-packages/PyYAML-5.3.1-py3.8.egg-info
+
+# Bintray no longer exists as of July 4th, so adding this line to document fix for bintray related apt-get issues
+RUN rm -rf /etc/apt/sources.list.d/sbt.list
