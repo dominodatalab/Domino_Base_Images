@@ -1,7 +1,7 @@
 # Domino Analytics Distribution 20210503
 
 ## Repo
-quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210503
+quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210709_noCUDA
 
 ## Description
 * Ubuntu 18.04
@@ -11,6 +11,8 @@ quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210503
 * Jupyter, Jupyterlab, VSCode, Rstudio
 
 ## Change Log
+* July 9th, 2021
+  * Remove bintray from list of apt sources as it was retired on July 4th
 * May 3rd, 2021
   * R 4.0.2 => 4.0.5
   * Miniconda 4.7.12.1 => py38_4.8.3
@@ -67,10 +69,10 @@ rstudio:
 ```
 
 ## Additional Images
-Additional images with CUDA installed are available.
+Additional images with CUDA or spark installed are also available.
 | Dockerfile name  | Image tag |
 | ------------- | ------------- |
-| Dockerfile.cuda11  | quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210127_CUDA11.0_full  |
-| Dockerfile.slim.cuda10_1  |quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210126_CUDA10.1   |
-| Dockerfile.slim.cuda10_2 |quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210126_CUDA10.2|
-| Dockerfile.slim.cuda11 |quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210126_CUDA11.0|
+| Dockerfile.slim.cuda10.1 | quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210709_CUDA10.1 |
+| Dockerfile.slim.cuda11 | quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210709_CUDA11 |
+| Dockerfile.cuda11 | quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210709_CUDA11_full |
+| Dockerfile.spark | quay.io/domino/base:Ubuntu18_DAD_Py3.8_R4.0-20210709_Spark3.1
