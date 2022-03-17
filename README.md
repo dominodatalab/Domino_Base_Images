@@ -1,4 +1,6 @@
-# Domino_Base_Images
+# DEPRECATED
+
+## Domino Base Images for Domino versions <= 4.5
 This repo contains the dockerfiles for base images used in the Domino Data Lab platform. Each folder contains an associated dockerfile and a readme with info about where to find the image, it's description and the corresponding notebook properties to use when creating a compute environment. 
 
 
